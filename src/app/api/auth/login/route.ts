@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
         }
 
         await dbConnect();
-        const user = await User.findOne({ email });
+        const normalizedEmail = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalizedEmail });
 
         if (!user) {
             return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 });
@@ -25,19 +26,29 @@ export async function POST(req: NextRequest) {
         }
 
         const secret = process.env.JWT_SECRET || 'fallback-secret';
-        const token = jwt.sign({ id: user._id, username: user.username }, secret, {
-            expiresIn: '2d',
-        });
-
+        const token = jwt.sign(
+            {
+                id: user._id,
+                username: user.username,
+                role: user.role // 🚀 incluye el rol en el JWT
+            },
+            secret,
+            { expiresIn: '2d' }
+        );
 
         const response = NextResponse.json({ message: 'Inicio de sesión exitoso' });
+
         response.cookies.set('token', token, {
             httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
             path: '/',
+            maxAge: 60 * 60 * 48 // 2 días
         });
 
         return response;
-    } catch (err) {
+    } catch (err: any) {
+        console.error('Error en login:', err);
         return NextResponse.json({ message: 'Error del servidor' }, { status: 500 });
     }
 }

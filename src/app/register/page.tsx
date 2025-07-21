@@ -48,20 +48,16 @@ export default function RegisterPage() {
                     title: 'Registro exitoso',
                     description: 'Redirigiendo al dashboard...',
                     status: 'success',
-                    duration: 4000,
+                    duration: 2000,
                     isClosable: true,
+                    position: 'top-right', // 👈 asegurate visibilidad
                 });
 
                 setForm({ username: '', email: '', password: '' });
-                router.push('/dashboard'); // 🚀 Redirección automática
-            } else {
-                toast({
-                    title: 'Error',
-                    description: data.message || 'No se pudo registrar el usuario',
-                    status: 'error',
-                    duration: 4000,
-                    isClosable: true,
-                });
+
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 2000);
             }
         } catch {
             toast({
@@ -111,6 +107,9 @@ export default function RegisterPage() {
                             borderColor="blue.600"
                         />
                     </FormControl>
+                    <Button onClick={() => toast({ title: 'Test Toast', description: 'Probando...', status: 'info' })}>
+                        Probar toast
+                    </Button>
 
                     <FormControl mb={4} isRequired>
                         <FormLabel>Correo electrónico</FormLabel>

@@ -51,11 +51,16 @@ export default function LoginPage() {
                     title: 'Sesión iniciada',
                     description: 'Redirigiendo al dashboard...',
                     status: 'success',
-                    duration: 4000,
+                    duration: 2000,
                     isClosable: true,
                 });
-                resetForm(); // 🧹 Limpiar campos
-                router.push('/dashboard');
+
+                resetForm();
+
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 2000);
+
             } else {
                 toast({
                     title: 'Error al iniciar sesión',

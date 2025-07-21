@@ -21,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.variable} antialiased`}>
-        <Providers>{children}</Providers> {/* ✅ Chakra UI envuelto */}
+        <Providers>
+          {children}
+        </Providers> {/* ✅ Chakra UI envuelto */}
       </body>
     </html>
   );
