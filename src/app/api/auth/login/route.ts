@@ -30,20 +30,21 @@ export async function POST(req: NextRequest) {
             {
                 id: user._id,
                 username: user.username,
-                role: user.role // 🚀 incluye el rol en el JWT
+                role: user.role,
             },
             secret,
             { expiresIn: '2d' }
         );
 
-        const response = NextResponse.json({ message: 'Inicio de sesión exitoso' });
+        // ✅ Redirección desde el servidor para evitar problemas con el layout
+        const response = NextResponse.redirect(new URL('/dashboard', req.url));
 
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             path: '/',
-            maxAge: 60 * 60 * 48 // 2 días
+            maxAge: 60 * 60 * 48, // 2 días
         });
 
         return response;

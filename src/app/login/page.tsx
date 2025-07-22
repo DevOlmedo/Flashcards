@@ -1,4 +1,5 @@
 'use client';
+
 import {
     Box,
     Button,
@@ -11,22 +12,19 @@ import {
     useToast,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-    const [form, setForm] = useState({
-        email: '',
-        password: '',
-    });
-
+    const [form, setForm] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);
-
     const toast = useToast();
-    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const resetForm = () => {
+        setForm({ email: '', password: '' });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -37,16 +35,19 @@ export default function LoginPage() {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: form.email,
-                    password: form.password,
-                }),
-
+                body: JSON.stringify(form),
             });
 
-            const data = await res.json();
-
-            if (res.ok) {
+            if (res.status === 401 || res.status === 404) {
+                const data = await res.json();
+                toast({
+                    title: 'Error al iniciar sesión',
+                    description: data.message || 'Credenciales inválidas',
+                    status: 'error',
+                    duration: 4000,
+                    isClosable: true,
+                });
+            } else if (res.redirected) {
                 toast({
                     title: 'Sesión iniciada',
                     description: 'Redirigiendo al dashboard...',
@@ -56,15 +57,12 @@ export default function LoginPage() {
                 });
 
                 resetForm();
-
-                setTimeout(() => {
-                    router.push('/dashboard');
-                }, 2000);
-
+                window.location.href = res.url; // 🔄 redirige al dashboard
+                return;
             } else {
                 toast({
-                    title: 'Error al iniciar sesión',
-                    description: data.message || 'Credenciales incorrectas',
+                    title: 'Error desconocido',
+                    description: 'No se pudo completar el inicio de sesión',
                     status: 'error',
                     duration: 4000,
                     isClosable: true,
@@ -83,22 +81,8 @@ export default function LoginPage() {
         setLoading(false);
     };
 
-    const resetForm = () => {
-        setForm({
-            email: '',
-            password: '',
-        });
-    };
-
     return (
-
-        <Box
-            minH="100vh"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            bg="black"
-        >
+        <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" bg="black">
             <Box
                 bg="black"
                 p={8}
@@ -115,7 +99,7 @@ export default function LoginPage() {
 
                 <form onSubmit={handleSubmit}>
                     <FormControl mb={4} isRequired>
-                        <FormLabel>Correo electrónico</FormLabel>
+                        <FormLabel color="whiteAlpha.800">Correo electrónico</FormLabel>
                         <Input
                             name="email"
                             type="email"
@@ -128,7 +112,7 @@ export default function LoginPage() {
                     </FormControl>
 
                     <FormControl mb={4} isRequired>
-                        <FormLabel>Contraseña</FormLabel>
+                        <FormLabel color="whiteAlpha.800">Contraseña</FormLabel>
                         <Input
                             name="password"
                             type="password"
@@ -152,8 +136,10 @@ export default function LoginPage() {
                 </form>
 
                 <Flex mt={4} justify="center" align="center" gap={2}>
-                    <Text fontSize="sm">¿No tenés cuenta?</Text>
-                    <Link href="/register" passHref>
+                    <Text fontSize="sm" color="whiteAlpha.800">
+                        ¿No tenés cuenta?
+                    </Text>
+                    <Link href="/register">
                         <Text
                             as="span"
                             color="blue.400"
@@ -166,4 +152,4 @@ export default function LoginPage() {
             </Box>
         </Box>
     );
-}   
+}

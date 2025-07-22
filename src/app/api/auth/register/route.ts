@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
         }
 
         const normalizedEmail = email.toLowerCase().trim();
-
         await dbConnect();
 
         const existingUser = await User.findOne({
@@ -26,34 +25,33 @@ export async function POST(req: NextRequest) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 🚀 Inicia el usuario con rol 'user' por defecto
         const newUser = await User.create({
             username,
             email: normalizedEmail,
             password: hashedPassword,
-            role: 'user'
+            role: 'user',
         });
 
         const secret = process.env.JWT_SECRET || 'fallback-secret';
-
         const token = jwt.sign(
             {
                 id: newUser._id,
                 username: newUser.username,
-                role: newUser.role
+                role: newUser.role,
             },
             secret,
             { expiresIn: '2d' }
         );
 
-        const response = NextResponse.json({ message: 'Usuario registrado correctamente' });
+        // ✅ Redirección automática al dashboard
+        const response = NextResponse.redirect(new URL('/dashboard', req.url));
 
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             path: '/',
-            maxAge: 60 * 60 * 48, // 2 días
+            maxAge: 60 * 60 * 48,
         });
 
         return response;
