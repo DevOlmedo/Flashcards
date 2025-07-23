@@ -1,46 +1,33 @@
+// src/components/LogoutButton.tsx
 'use client';
-import { Button, useToast } from '@chakra-ui/react';
+
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function LogoutButton() {
     const router = useRouter();
-    const toast = useToast();
 
     const handleLogout = async () => {
         try {
             const res = await fetch('/api/auth/logout', { method: 'POST' });
 
             if (res.ok) {
-                toast({
-                    title: 'Sesión cerrada',
-                    description: 'Redirigiendo al login...',
-                    status: 'info',
-                    duration: 3000,
-                    isClosable: true,
-                });
+                toast.info('Sesión cerrada. Redirigiendo al login...');
                 router.push('/login');
             } else {
-                toast({
-                    title: 'Error al cerrar sesión',
-                    status: 'error',
-                    duration: 3000,
-                    isClosable: true,
-                });
+                toast.error('Error al cerrar sesión');
             }
         } catch {
-            toast({
-                title: 'Error de red',
-                description: 'No se pudo comunicar con el servidor',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
+            toast.error('Error de red. No se pudo comunicar con el servidor');
         }
     };
 
     return (
-        <Button onClick={handleLogout} colorScheme="red" variant="outline">
+        <button
+            onClick={handleLogout}
+            className="px-4 py-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition rounded"
+        >
             Cerrar sesión
-        </Button>
+        </button>
     );
 }

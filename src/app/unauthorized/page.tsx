@@ -1,55 +1,37 @@
 'use client';
 
-import { Box, Heading, Text, Button, Stack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-
-const MotionBox = motion(Box);
 
 export default function UnauthorizedPage() {
     const router = useRouter();
 
     return (
-        <MotionBox
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
-            minH="100vh"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            bg="black"
-            px={6}
+        <section
+            className="max-w-lg mx-auto mt-20 bg-gray-900 border border-red-500 rounded-xl shadow-xl p-8 text-center"
+            role="alert"
+            aria-live="assertive"
         >
-            <Box
-                bg="gray.900"
-                p={8}
-                rounded="xl"
-                shadow="xl"
-                border="1px"
-                borderColor="red.500"
-                textAlign="center"
-                maxW="lg"
-            >
-                <Heading size="lg" mb={4} color="red.400">
-                    🔒 Acceso denegado
-                </Heading>
+            <h1 className="text-2xl font-bold text-red-400 mb-4">🔒 Acceso denegado</h1>
 
-                <Text fontSize="md" mb={6} color="whiteAlpha.800">
-                    No tenés permiso para ver esta página. Puede que tu sesión haya expirado
-                    o no tengas el rol adecuado.
-                </Text>
+            <p className="text-base text-white/80 mb-6">
+                No tenés permiso para ver esta página. Puede que tu sesión haya expirado o no tengas el rol adecuado.
+            </p>
 
-                <Stack spacing={3}>
-                    <Button onClick={() => router.push('/login')} colorScheme="blue" variant="solid">
-                        Iniciar sesión
-                    </Button>
+            <div className="flex flex-col gap-3">
+                <button
+                    onClick={() => router.push('/login')}
+                    className="rounded px-4 py-2 bg-blue-600 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                    Iniciar sesión
+                </button>
 
-                    <Button onClick={() => router.push('/')} colorScheme="red" variant="outline">
-                        Volver al inicio
-                    </Button>
-                </Stack>
-            </Box>
-        </MotionBox>
+                <button
+                    onClick={() => router.push('/')}
+                    className="rounded px-4 py-2 border border-red-500 text-red-500 transition-colors hover:bg-red-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400"
+                >
+                    Volver al inicio
+                </button>
+            </div>
+        </section>
     );
 }

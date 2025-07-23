@@ -1,23 +1,20 @@
 'use client';
 
-import {
-    Box,
-    Button,
-    FormControl,
-    FormLabel,
-    Input,
-    Heading,
-    Text,
-    Flex,
-    useToast,
-} from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { toast } from 'sonner';
+import { CheckCircle, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import AOS from 'aos';
+
+import 'aos/dist/aos.css';
 
 export default function RegisterPage() {
     const [form, setForm] = useState({ username: '', email: '', password: '' });
     const [loading, setLoading] = useState(false);
-    const toast = useToast();
+
+    useEffect(() => {
+        AOS.init({ once: true, duration: 500 });
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -40,41 +37,26 @@ export default function RegisterPage() {
 
             if (res.status === 409) {
                 const data = await res.json();
-                toast({
-                    title: 'Usuario duplicado',
-                    description: data.message || 'Ya existe una cuenta con ese email o nombre de usuario',
-                    status: 'error',
-                    duration: 4000,
-                    isClosable: true,
+                toast.error(data.message || 'Ya existe una cuenta con ese email o nombre de usuario', {
+                    icon: <XCircle className="text-red-500" />,
                 });
             } else if (res.redirected) {
-                toast({
-                    title: 'Registro exitoso',
-                    description: 'Redirigiendo al dashboard...',
-                    status: 'success',
-                    duration: 2000,
-                    isClosable: true,
+                toast.success('Registro exitoso. Redirigiendo al dashboard...', {
+                    icon: <CheckCircle className="text-green-500" />,
                 });
-
                 resetForm();
-                window.location.href = res.url; // 👈 fuerza la navegación
+                setTimeout(() => {
+                    window.location.href = res.url;
+                }, 1800);
                 return;
             } else {
-                toast({
-                    title: 'Error desconocido',
-                    description: 'No se pudo completar el registro',
-                    status: 'error',
-                    duration: 4000,
-                    isClosable: true,
+                toast.error('No se pudo completar el registro', {
+                    icon: <AlertTriangle className="text-yellow-500" />,
                 });
             }
         } catch {
-            toast({
-                title: 'Error de red',
-                description: 'No se pudo conectar al servidor',
-                status: 'error',
-                duration: 4000,
-                isClosable: true,
+            toast.error('No se pudo conectar al servidor', {
+                icon: <AlertTriangle className="text-yellow-500" />,
             });
         }
 
@@ -82,87 +64,90 @@ export default function RegisterPage() {
     };
 
     return (
-        <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" bg="black">
-            <Box
-                bg="black"
-                p={8}
-                rounded="2xl"
-                shadow="md"
-                width="100%"
-                border="1px"
-                borderColor="blue.300"
-                maxW="md"
+        <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center px-4">
+            <div
+                data-aos="zoom-in"
+                className="w-full max-w-md bg-gray-950 border border-blue-500 rounded-2xl p-8 shadow-lg"
             >
-                <Heading as="h2" size="lg" mb={6} color="blue.200">
-                    Crear cuenta
-                </Heading>
+                <h2 className="text-blue-400 text-3xl font-semibold mb-6 text-center">Crear cuenta</h2>
 
-                <form onSubmit={handleSubmit}>
-                    <FormControl mb={4} isRequired>
-                        <FormLabel color="whiteAlpha.800">Nombre de usuario</FormLabel>
-                        <Input
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                        <label htmlFor="username" className="block text-white/80 text-sm mb-1">
+                            Nombre de usuario
+                        </label>
+                        <input
+                            id="username"
                             name="username"
                             type="text"
-                            placeholder="Nombre de usuario"
+                            required
                             value={form.username}
                             onChange={handleChange}
-                            border="1px"
-                            borderColor="blue.600"
+                            placeholder="Ej: joaquin.dev"
+                            className="w-full rounded-md border border-blue-600 px-4 py-2 bg-gray-900 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
-                    </FormControl>
+                    </div>
 
-                    <FormControl mb={4} isRequired>
-                        <FormLabel color="whiteAlpha.800">Correo electrónico</FormLabel>
-                        <Input
+                    <div>
+                        <label htmlFor="email" className="block text-white/80 text-sm mb-1">
+                            Correo electrónico
+                        </label>
+                        <input
+                            id="email"
                             name="email"
                             type="email"
-                            placeholder="Correo electrónico"
+                            required
                             value={form.email}
                             onChange={handleChange}
-                            border="1px"
-                            borderColor="blue.600"
+                            placeholder="nombre@email.com"
+                            className="w-full rounded-md border border-blue-600 px-4 py-2 bg-gray-900 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
-                    </FormControl>
+                    </div>
 
-                    <FormControl mb={4} isRequired>
-                        <FormLabel color="whiteAlpha.800">Contraseña</FormLabel>
-                        <Input
+                    <div>
+                        <label htmlFor="password" className="block text-white/80 text-sm mb-1">
+                            Contraseña
+                        </label>
+                        <input
+                            id="password"
                             name="password"
                             type="password"
-                            placeholder="Contraseña"
+                            required
                             value={form.password}
                             onChange={handleChange}
-                            border="1px"
-                            borderColor="blue.600"
+                            placeholder="••••••••••"
+                            className="w-full rounded-md border border-blue-600 px-4 py-2 bg-gray-900 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
-                    </FormControl>
+                    </div>
 
-                    <Button
+                    <button
                         type="submit"
-                        colorScheme="blue"
-                        width="full"
-                        isLoading={loading}
-                        loadingText="Registrando..."
+                        disabled={loading}
+                        className={`w-full py-2 px-4 rounded-md text-white font-medium transition-all ${loading
+                            ? 'bg-blue-800 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400'
+                            }`}
                     >
-                        Registrarme
-                    </Button>
+                        {loading ? (
+                            <span className="flex items-center justify-center gap-2">
+                                <Loader2 className="animate-spin h-4 w-4" />
+                                Registrando...
+                            </span>
+                        ) : (
+                            'Registrarme'
+                        )}
+                    </button>
                 </form>
 
-                <Flex mt={4} justify="center" align="center" gap={2}>
-                    <Text fontSize="sm" color="whiteAlpha.800">
-                        ¿Ya tenés cuenta?
-                    </Text>
+                <div className="mt-6 text-center text-sm text-white/80 flex justify-center gap-2">
+                    <span>¿Ya tenés cuenta?</span>
                     <Link href="/login">
-                        <Text
-                            as="span"
-                            color="blue.400"
-                            _hover={{ color: 'red.300', textDecoration: 'underline' }}
-                        >
+                        <span className="text-blue-400 hover:text-red-300 hover:underline cursor-pointer">
                             Iniciá sesión acá
-                        </Text>
+                        </span>
                     </Link>
-                </Flex>
-            </Box>
-        </Box>
+                </div>
+            </div>
+        </main>
     );
 }

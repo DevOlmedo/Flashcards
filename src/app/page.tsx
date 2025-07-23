@@ -1,3 +1,4 @@
+// src/app/page.tsx
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
